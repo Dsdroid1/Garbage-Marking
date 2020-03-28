@@ -69,6 +69,11 @@ Tree_Node* InsertBST(Tree_Node *root,Tree_Node *new_node)
                     flag=1;
                 }
             }
+            else
+            {
+                printf("\n Data already exists!");
+            }
+            
         }
     }
     return retval;
