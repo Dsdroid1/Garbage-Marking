@@ -7,8 +7,8 @@ typedef enum {NOT_YET_TRAVERSED,LEFT_COMPLETED,COMPLETED} Status;
 typedef struct Tree_Node_tag
 {
     int data;
-    Bool marked;
-    Status s;
+    Bool marked;//For method 2(By MorrisInorder Traversal)
+    Status s;//For method 1
     struct Tree_Node_tag *left;
     struct Tree_Node_tag *right;
 }Tree_Node; 
@@ -196,51 +196,124 @@ void GarbageMark(Tree_Node *root)
             else
             {
                 //Given tree was null
+                flag=1;
+                printf("Given tree was null");
             }
                
         }
     }
 }
 
-void PrintTree(Tree_Node *root)
+void GarbageMarkByMorrisInorderTraversal(Tree_Node *root)
 {
-    //preorder
+    Tree_Node *prev,*trav;
+    while(root!=NULL)
+    {
+        if(root->left==NULL)
+        {
+            root->marked=TRUE;
+            root=root->right;
+        }
+        else
+        {
+            prev=root->left;
+            while(prev->right!=NULL && prev->right!=root)
+            {
+                prev=prev->right;
+            }
+            if(prev->right==NULL)//New inorder link to be established
+            {
+                prev->right=root;
+                root=root->left;
+            }
+            else
+            {
+                //The inorder link was already made
+                //This is the visit of the inorder link made
+                (prev->right)->marked=TRUE;
+                prev->right=NULL;
+                root=root->right;
+            }
+            
+        }
+        
+    }
+}
+
+void PrintTree(Tree_Node *root,Bool mode)
+{
+    //Mode 0 means print according to GarbageMark method
+    //Mode 1 means according to morris inorder traversal
+    //Inorder
     if(root!=NULL)
     {
+        if(root->left!=NULL)
+        {
+            PrintTree(root->left,mode);
+        }
         printf("\nNode_data:%d",root->data);
-        if(root->marked==TRUE)
+        if(mode==TRUE)
         {
-            printf("\nMarked Bit:True");
+            if(root->marked==TRUE)
+            {
+                printf("\nMarked Bit:True");
+            }
+            else
+            {
+                printf("\nMarked Bit:False");
+            }
         }
         else
         {
-            printf("\nMarked Bit:False");
+           if(root->s==NOT_YET_TRAVERSED)
+            {
+                printf("\nNOT_YET_TRAVERSED");
+            }
+            else if(root->s==LEFT_COMPLETED)
+            {
+                printf("\nLEFT_COMPLETED");
+            }
+            else
+            {
+                printf("\nCOMPLETED");
+            }   
         }
-        if(root->s==NOT_YET_TRAVERSED)
-        {
-            printf("\nNOT_YET_TRAVERSED");
-        }
-        else if(root->s==LEFT_COMPLETED)
-        {
-            printf("\nLEFT_COMPLETED");
-        }
-        else
-        {
-            printf("\nCOMPLETED");
-        }
+        
+        
         printf("\n-------------------------");
-        PrintTree(root->left);
-        PrintTree(root->right);
+        if(root->right!=NULL)
+        {
+            PrintTree(root->right,mode);
+        }
     }
-    
 }
 
 void main()
 {
     Tree_Node *root;
+    Bool mode=FALSE;
+    int temp;
     root=CreateBST();
-    PrintTree(root);
-    GarbageMark(root);
+    printf("\nWhich Method would you like:");
+    printf("\n1.Method of reversing the tree links  or");
+    printf("\n2.Method of Morris Inorder Traversal");
+    printf("\n(Any other choice will result in method 1):");
+    scanf("%d",&temp);
+    if(temp==2)
+    {
+        mode=TRUE;
+        PrintTree(root,mode);
+        GarbageMarkByMorrisInorderTraversal(root);
+    }
+    else
+    {
+        PrintTree(root,mode);
+        GarbageMark(root);
+    }
+    
+    //PrintTree(root);
+    //GarbageMark(root);
+    
     printf("\n-------------------**************----------------------");
-    PrintTree(root);
+    PrintTree(root,mode);
 }
